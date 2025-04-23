@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            padding: 30px;
+        }
+        form {
+            background: #ffffff;
+            padding: 20px;
+            width: 300px;
+            margin: auto;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        input[type=text], input[type=password], input[type=email] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type=submit] {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            border-radius: 4px;
+        }
+    </style>
+    <script>
+        function validateForm() {
+            const form = document.forms["regForm"];
+            const username = form["username"].value.trim();
+            const email = form["email"].value.trim();
+            const password = form["password"].value;
+            const confirm = form["confirm"].value;
+            const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+
+            if (username.length < 4) {
+                alert("Username must be at least 4 characters long.");
+                return false;
+            }
+            if (!email.match(emailPattern)) {
+                alert("Invalid email format.");
+                return false;
+            }
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters long.");
+                return false;
+            }
+            if (password !== confirm) {
+                alert("Passwords do not match.");
+                return false;
+            }
+            // Store credentials in localStorage (for demonstration only)
+            const userData = { username, email, password };
+            localStorage.setItem('userData', JSON.stringify(userData));
+            alert("Registration successful! You can now log in.");
+            return true;
+        }
+        window.location.href = "login.html"
+    </script>
+</head>
+<body>
+    <h2 align="center">Register</h2>
+    <form name="regForm" onsubmit="return validateForm()">
+        <label>Username:</label>
+        <input type="text" name="username" required>
+
+        <label>Email:</label>
+        <input type="email" name="email" required>
+
+        <label>Password:</label>
+        <input type="password" name="password" required>
+
+        <label>Confirm Password:</label>
+        <input type="password" name="confirm" required>
+
+        <input type="submit" value="Register">
+    </form>
+</body>
+</html>

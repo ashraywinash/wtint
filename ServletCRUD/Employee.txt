@@ -1,0 +1,172 @@
+package ashray;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.*;
+
+import java.io.*;
+
+/**
+ * Servlet implementation class Employee
+ */
+@WebServlet("/Employee")
+public class Employee extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public Employee() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+    
+    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/employees";
+    private static final String JDBC_USER = "root";
+    private static final String JDBC_PASS = "root";
+    
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        String username = request.getParameter("username");
+
+        if (username == null || username.isEmpty()) {
+            out.println("Username is required");
+            return;
+        }
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection con = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+                 PreparedStatement pst = con.prepareStatement("SELECT salary FROM employee WHERE name = ?")) {
+
+                pst.setString(1, username);
+                ResultSet rs = pst.executeQuery();
+
+                if (rs.next()) {
+                    out.println("Salary: " + rs.getObject(1));
+                } else {
+                    out.println("Employee not found");
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace(out);
+        }
+    }
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+
+        String method = req.getParameter("_method");
+        if ("PUT".equalsIgnoreCase(method)) {
+            doPut(req, res);
+            return;
+        } else if ("DELETE".equalsIgnoreCase(method)) {
+            doDelete(req, res);
+            return;
+        }
+
+        // Handle POST (Create)
+        String username = req.getParameter("username");
+        String salary = req.getParameter("salary");
+
+        if (username == null || salary == null || username.isEmpty() || salary.isEmpty()) {
+            out.println("Username and Salary are required");
+            return;
+        }
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection con = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+                 PreparedStatement checkPst = con.prepareStatement("SELECT * FROM employee WHERE name = ?")) {
+
+                checkPst.setString(1, username);
+                ResultSet checkRs = checkPst.executeQuery();
+
+                if (checkRs.next()) {
+                    out.println("Employee already exists");
+                } else {
+                    try (PreparedStatement pst = con.prepareStatement("INSERT INTO employee (name, salary) VALUES (?, ?)")) {
+                        pst.setString(1, username);
+                        pst.setString(2, salary);
+                        int rows = pst.executeUpdate();
+                        out.println(rows > 0 ? "Employee created successfully" : "Error creating employee");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace(out);
+        }
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+
+        String username = req.getParameter("username");
+        String salary = req.getParameter("salary");
+
+        if (username == null || salary == null || username.isEmpty() || salary.isEmpty()) {
+            out.println("Username and Salary are required");
+            return;
+        }
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection con = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+                 PreparedStatement pst = con.prepareStatement("UPDATE employee SET salary = ? WHERE name = ?")) {
+
+                pst.setString(1, salary);
+                pst.setString(2, username);
+                int rows = pst.executeUpdate();
+                out.println(rows > 0 ? "Employee updated successfully" : "Error updating employee or employee does not exist");
+            }
+        } catch (Exception e) {
+            e.printStackTrace(out);
+        }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+
+        String username = req.getParameter("username");
+
+        if (username == null || username.isEmpty()) {
+            out.println("Username is required");
+            return;
+        }
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection con = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASS);
+                 PreparedStatement pst = con.prepareStatement("DELETE FROM employee WHERE name = ?")) {
+
+                pst.setString(1, username);
+                int rows = pst.executeUpdate();
+                out.println(rows > 0 ? "Employee deleted successfully" : "Error deleting employee or employee does not exist");
+            }
+        } catch (Exception e) {
+            e.printStackTrace(out);
+        }
+    }
+
+}

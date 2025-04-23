@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f1f1;
+            padding: 30px;
+        }
+        form {
+            background: #ffffff;
+            padding: 20px;
+            width: 300px;
+            margin: auto;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        input[type=text], input[type=password] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type=submit] {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            border-radius: 4px;
+        }
+    </style>
+    <script>
+        function validateLogin(event) {
+            event.preventDefault(); // Stop form from submitting normally
+            const form = document.forms["loginForm"];
+            const usernameOrEmail = form["username"].value.trim();
+            const password = form["password"].value;
+
+            // Retrieve user data from localStorage
+            const storedData = localStorage.getItem('userData');
+            if (!storedData) {
+                alert("No user is registered. Please register first.");
+                return false;
+            }
+            const userData = JSON.parse(storedData);
+
+            // Validate credentials – check username/email and password
+            if ((usernameOrEmail === userData.username || usernameOrEmail === userData.email) &&
+                 password === userData.password) {
+                alert("Login successful!");
+                // Redirect or further process if needed (e.g., window.location = "dashboard.html";)
+            } else {
+                alert("Invalid username/email or password.");
+            }
+            return false;
+        }
+    </script>
+</head>
+<body>
+    <h2 align="center">Login</h2>
+    <form name="loginForm" onsubmit="validateLogin(event)">
+        <label>Username or Email:</label>
+        <input type="text" name="username" required>
+
+        <label>Password:</label>
+        <input type="password" name="password" required>
+
+        <input type="submit" value="Login">
+    </form>
+</body>
+</html>
